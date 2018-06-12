@@ -1,6 +1,5 @@
 import sys
 import getopt
-import datetime
 import codecs
 import htmlHandler
 
@@ -20,7 +19,7 @@ def crawler(argv):
         outputFileName = userName + ".csv"
         outputFile = codecs.open(outputFileName, "w+", "utf-8")
         outputFile.write('username;date;retweets;favorites;text;geo;mentions;hashtags;id;permalink')
-        print('Searching...\n')
+        print('Crawling start!\n')
 
         def receiveBuffer(tweets):
             for t in tweets:
