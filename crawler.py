@@ -17,22 +17,26 @@ def crawler(argv):
             if opt == '--username':
                 userName = arg
 
-        # tweetCriteria = got.manager.TweetCriteria()
-        outputFileName = "outpu_got.csv"
-
+        outputFileName = userName + ".csv"
         outputFile = codecs.open(outputFileName, "w+", "utf-8")
-
         outputFile.write('username;date;retweets;favorites;text;geo;mentions;hashtags;id;permalink')
-
         print('Searching...\n')
 
         def receiveBuffer(tweets):
             for t in tweets:
-                outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;"%s";%s' % (
-                t.username, t.date.strftime("%Y-%m-%d %H:%M"), t.retweets, t.favorites, t.text, t.geo, t.mentions,
-                t.hashtags, t.id, t.permalink)))
+                outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;"%s";%s' % (t.username,
+                                                                           t.date.strftime("%Y-%m-%d %H:%M"),
+                                                                           t.retweets,
+                                                                           t.favorites,
+                                                                           t.text,
+                                                                           t.geo,
+                                                                           t.mentions,
+                                                                           t.hashtags,
+                                                                           t.id,
+                                                                           t.permalink)))
             outputFile.flush()
-            print('More %d saved on file...\n' % len(tweets))
+            print(len(tweets), end='')
+            print(" tweets crawled and saved.\n")
 
         htmlHandler.HtmlHandler().getTweets(userName, receiveBuffer)
 
