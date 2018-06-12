@@ -47,16 +47,7 @@ class HtmlHandler:
         return jsonTweet
 
     @staticmethod
-    def receiveBuffer(tweets, outputFile):
-        for t in tweets:
-            outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;"%s";%s' % (
-                t.username, t.date.strftime("%Y-%m-%d %H:%M"), t.retweets, t.favorites, t.text, t.geo, t.mentions,
-                t.hashtags, t.id, t.permalink)))
-        outputFile.flush()
-        print('More %d saved on file...\n' % len(tweets))
-
-    @staticmethod
-    def getTweets(userName, outputFile, receiveBuffer=None, bufferLength=100, proxy=None):
+    def getTweets(userName, receiveBuffer=None, bufferLength=100, proxy=None):
         refreshCursor = ''
 
         results = []
@@ -122,11 +113,11 @@ class HtmlHandler:
                 resultsAux.append(tweet)
 
                 if receiveBuffer and len(resultsAux) >= bufferLength:
-                    receiveBuffer(resultsAux, outputFile)
+                    receiveBuffer(resultsAux)
                     resultsAux = []
 
         if receiveBuffer and len(resultsAux) > 0:
-            receiveBuffer(resultsAux, outputFile)
+            receiveBuffer(resultsAux)
 
         return results
 
