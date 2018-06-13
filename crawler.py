@@ -3,6 +3,7 @@ import getopt
 import codecs
 import htmlHandler
 
+
 def crawler(argv):
 
     if len(argv) == 0:
@@ -19,7 +20,7 @@ def crawler(argv):
         outputFileName = userName + ".csv"
         outputFile = codecs.open(outputFileName, "w+", "utf-8")
         outputFile.write('username;date;retweets;favorites;text;geo;mentions;hashtags;id;permalink')
-        print('Crawling start!\n')
+        print('Crawling start!')
 
         def receiveBuffer(tweets):
             for t in tweets:
@@ -35,7 +36,7 @@ def crawler(argv):
                                                                            t.permalink)))
             outputFile.flush()
             print(len(tweets), end='')
-            print(" tweets crawled and saved.\n")
+            print(" tweets crawled and saved.")
 
         htmlHandler.HtmlHandler().getTweets(userName, receiveBuffer)
 
