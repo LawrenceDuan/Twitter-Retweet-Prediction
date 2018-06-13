@@ -1,25 +1,11 @@
-import pandas
+import subprocess
 
-def mongoimport(db, csv_path):
+
+def mongoimport(filename):
     """ Imports a csv file at path csv_name to a mongo colection
     returns: count of the documants in the new collection
     """
 
-    db.segment.drop()
+    csv_path = '/Users/cheng/Documents/Dropbox/404Error/Academic/UoM/University/Academic Year/COMP66060 Masters Project/Twitter-Retweet-Prediction/' + filename
 
-    data = pandas.read_csv(csv_path)
-    header = ["username", "date", "retweets", "favorites", "text", "geo", "mentions", "hashtags", "id", "permalink"]
-
-    for each in data:
-        row = {}
-        for field in header:
-            row[field] = each[field]
-
-        db.segment.insert(row)
-
-    # coll = db[coll_name]
-    #
-    # payload = json.loads(data.to_json(orient='records'))
-    # coll.remove()
-    # coll.insert(payload)
-    # return coll.count()
+    subprocess.Popen(['mongoimport', '--db', 'tweets', '--collection', 'retweetPrediction', '--type', 'csv', '--headerline', '--file', csv_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
