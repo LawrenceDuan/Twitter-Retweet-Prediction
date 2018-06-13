@@ -52,9 +52,6 @@ def crawler(argv):
 
 
 if __name__ == '__main__':
-    # csv_path = crawler(sys.argv[1:])
+    filename = crawler(sys.argv[1:])
 
-    csv_path = "*/rihanna.csv"
-    db, connection = dbHandler.connectDB()
-    CSVtoDB.mongoimport(db, csv_path)
-    dbHandler.closeDB(connection)
+    CSVtoDB.mongoimport(filename)
