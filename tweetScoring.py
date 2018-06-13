@@ -1,23 +1,14 @@
-import argparse
-import pymongo
+import dbHandler
 import functions
 import datetime
 
 
-def database_connection():
-    connection = pymongo.MongoClient('mongodb://127.0.0.1:27017')
-    db = connection['tweets']
-
-    return db
-
-
 def scoring(db):
 
-    users = list(db.retweetPrediction.find().distinct("username"))
+    twitter_users = list(db.retweetPrediction.find().distinct("username"))
 
-    for user in users:
-
-        tweets = list(db.retweetPrediction.find({"username":user}).sort('date'))
+    for user in twitter_users:
+        user_tweets = list(db.retweetPrediction.find({"username":user}).sort('date'))
 
         if "score" in tweets[0]:
             print ("Skipping over " + user)
@@ -53,5 +44,6 @@ def scoring(db):
 
 
 if __name__ == '__main__':
-    db = database_connection()
+    db, connection = dbHandler.connectDB()
     scoring(db)
+    dbHandler.closeDB(connection)
