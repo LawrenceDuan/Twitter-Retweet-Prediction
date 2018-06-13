@@ -2,6 +2,8 @@ import sys
 import getopt
 import codecs
 import htmlHandler
+import CSVtoDB
+import dbHandler
 
 
 def crawler(argv):
@@ -46,6 +48,13 @@ def crawler(argv):
         outputFile.close()
         print('Done. Output file generated "%s".' % outputFileName)
 
+    return outputFileName
+
 
 if __name__ == '__main__':
-    crawler(sys.argv[1:])
+    # csv_path = crawler(sys.argv[1:])
+
+    csv_path = "*/rihanna.csv"
+    db, connection = dbHandler.connectDB()
+    CSVtoDB.mongoimport(db, csv_path)
+    dbHandler.closeDB(connection)
