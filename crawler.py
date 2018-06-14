@@ -11,7 +11,7 @@ def crawler(name):
         outputFileName = userName + ".csv"
         outputFile = codecs.open(outputFileName, "w+", "utf-8")
         outputFile.write('username;date;retweets;favorites;text;geo;mentions;hashtags;id;permalink')
-        print('Crawling start!')
+        print("•Start crawling " + userName + "'s tweets!")
 
         def receiveBuffer(tweets):
             for t in tweets:
@@ -32,10 +32,11 @@ def crawler(name):
         htmlHandler.HtmlHandler().getTweets(userName, receiveBuffer)
 
     except:
-        print('Arguments parser error, try -h' + arg)
+        print('Error occurred, please re-run!')
     finally:
         outputFile.close()
-        print('Done. Output file generated "%s".' % outputFileName)
+        print('Output file generated "%s".' % outputFileName)
+        print('--------------------------------------------------')
 
 
 if __name__ == '__main__':
