@@ -1,3 +1,5 @@
+# How to run: python CSVtoDB.py (name(s) of csv file(s))
+
 import subprocess
 import sys
 

@@ -1,3 +1,5 @@
+# How to run: python crawler.py (name(s) of twitter account(s))
+
 import sys
 import codecs
 import htmlHandler
