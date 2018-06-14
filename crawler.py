@@ -2,23 +2,12 @@ import sys
 import getopt
 import codecs
 import htmlHandler
-import CSVtoDB
-import dbHandler
 
 
-def crawler(argv):
+def crawler(name):
 
-    if len(argv) == 0:
-        print('Parameters required.')
-        return
-
-    userName = ''
+    userName = name
     try:
-        optlist, args = getopt.getopt(argv, "", ("username=", "near=", "within=", "since=", "until=", "querysearch=", "toptweets", "maxtweets=", "output="))
-        for opt, arg in optlist:
-            if opt == '--username':
-                userName = arg
-
         outputFileName = userName + ".csv"
         outputFile = codecs.open(outputFileName, "w+", "utf-8")
         outputFile.write('username;date;retweets;favorites;text;geo;mentions;hashtags;id;permalink')
@@ -48,10 +37,19 @@ def crawler(argv):
         outputFile.close()
         print('Done. Output file generated "%s".' % outputFileName)
 
-    return outputFileName
-
 
 if __name__ == '__main__':
-    filename = crawler(sys.argv[1:])
 
-    CSVtoDB.mongoimport(filename)
+    # optlist, args = getopt.getopt(sys.argv[1:], "", (
+    # "username=", "near=", "within=", "since=", "until=", "querysearch=", "toptweets", "maxtweets=", "output="))
+    # for opt, arg in optlist:
+    #     if opt == '--username':
+    #         userName = arg
+
+    if len(sys.argv[1:]) == 0:
+        print('Names required.')
+    else:
+        name_list = sys.argv[1:]
+
+        for name in name_list:
+            crawler(name)
