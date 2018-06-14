@@ -1,42 +1,29 @@
 import sys
-import getopt
 import codecs
 import htmlHandler
 
 
 def crawler(name):
-
+    '''
+    Crawling tweet information by pretending a human who is surfing through a website.
+    :param name: name of the twitter account to be crawled
+    :return: void
+    '''
     userName = name
-    try:
-        outputFileName = userName + ".csv"
-        outputFile = codecs.open(outputFileName, "w+", "utf-8")
-        outputFile.write('username;date;retweets;favorites;text;geo;mentions;hashtags;id;permalink')
-        print("•Start crawling " + userName + "'s tweets!")
 
-        def receiveBuffer(tweets):
-            for t in tweets:
-                outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;"%s";%s' % (t.username,
-                                                                           t.date.strftime("%Y-%m-%d %H:%M"),
-                                                                           t.retweets,
-                                                                           t.favorites,
-                                                                           t.text,
-                                                                           t.geo,
-                                                                           t.mentions,
-                                                                           t.hashtags,
-                                                                           t.id,
-                                                                           t.permalink)))
-            outputFile.flush()
-            print(len(tweets), end='')
-            print(" tweets crawled and saved.")
+    csvName = userName + ".csv"
+    csv = codecs.open(csvName, "w+", "utf-8")
 
-        htmlHandler.HtmlHandler().getTweets(userName, receiveBuffer)
+    # Write headers to csv file first
+    csv.write('username;date;tweetid;authorid;text;retweets;favorites;mentions;hashtags;permalink;geo')
+    print("•Start crawling " + userName + "'s tweets!")
 
-    except:
-        print('Error occurred, please re-run!')
-    finally:
-        outputFile.close()
-        print('Output file generated "%s".' % outputFileName)
-        print('--------------------------------------------------')
+    htmlHandler.HtmlHandler().getTweets(userName, csv)
+
+    csv.close()
+    print(' File: ', end='')
+    print('csv file generated "%s".' % csvName)
+    print('--------------------------------------------------')
 
 
 if __name__ == '__main__':
