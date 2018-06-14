@@ -13,4 +13,6 @@ def mongoimport(filename):
 
 
 if __name__ == '__main__':
-    mongoimport(sys.argv[1])
+    names = sys.argv[1:]
+    for name in names:
+        mongoimport(name)
