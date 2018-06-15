@@ -1,3 +1,6 @@
+# How to run: python tweetScoring.py
+
+
 import dbHandler
 import datetime
 
