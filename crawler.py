@@ -30,12 +30,6 @@ def crawler(name):
 
 if __name__ == '__main__':
 
-    # optlist, args = getopt.getopt(sys.argv[1:], "", (
-    # "username=", "near=", "within=", "since=", "until=", "querysearch=", "toptweets", "maxtweets=", "output="))
-    # for opt, arg in optlist:
-    #     if opt == '--username':
-    #         userName = arg
-
     if len(sys.argv[1:]) == 0:
         print('Names required.')
     else:
