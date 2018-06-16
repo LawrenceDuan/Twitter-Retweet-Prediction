@@ -31,7 +31,9 @@ def createWordDictionary(user, user_tweets):
 
     print("•" + user + "'s dictionary created!")
 
-    return dictionary
+    descending_sorted_dictionary = sorted(dictionary.items(), reverse=True, key=lambda elem: elem[1])
+
+    return descending_sorted_dictionary
 
 
 def wordsin(tweet):
@@ -44,6 +46,9 @@ def wordsin(tweet):
         if pureCharacters[:4] != 'http': nonPicTexts.append(pureCharacters)
 
     return nonPicTexts
+
+
+def tweet
 
 
 if __name__ == "__main__":
@@ -60,7 +65,9 @@ if __name__ == "__main__":
         user_tweets = list(db.retweetPrediction.find({"username": user}).sort([("date", 1)]))
 
         # Create word dictionary for the user
-        dictionary = createWordDictionary(user, user_tweets)
+        descending_sorted_dictionary = createWordDictionary(user, user_tweets)
+
+        # Calculating
 
     # Disconnect to mongodb
     dbHandler.closeDB(connection)
