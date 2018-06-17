@@ -10,6 +10,9 @@ def preprocessing(db):
     db.retweetPrediction.remove({"retweets": {"$type": 2}})
     db.retweetPrediction.remove({"favorites": {"$type": 2}})
 
+    # Remove tweets which text is not string
+    db.retweetPrediciton.remove({"text": {"$not": {"$type": 2}}})
+
     # Remove users whose number of tweets is less than 100
     twitter_users = list(db.retweetPrediction.find().distinct("username"))
 
