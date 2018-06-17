@@ -83,7 +83,7 @@ if __name__ == "__main__":
         # Calculating a new tweet's score
         score = tweetScoring(args.tweet, descending_sorted_dictionary)
 
-        print 
+        print('Predicted tweet score: ' + score)
 
     # Disconnect to mongodb
     dbHandler.closeDB(connection)
