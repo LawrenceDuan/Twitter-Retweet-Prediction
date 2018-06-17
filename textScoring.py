@@ -52,7 +52,15 @@ def wordsin(tweet):
 
 
 def tweetScoring(tweet, dictionary):
-    
+    scoreList = []
+
+    for word in wordsin(tweet):
+        if word in dictionary: scoreList.append(dictionary[word])
+        else: scoreList.append(0)
+
+    if scoreList == []: score = 0
+    else: score = numpy.mean(scoreList)
+
     return score
 
 
@@ -74,6 +82,8 @@ if __name__ == "__main__":
 
         # Calculating a new tweet's score
         score = tweetScoring(args.tweet, descending_sorted_dictionary)
+
+        print 
 
     # Disconnect to mongodb
     dbHandler.closeDB(connection)
