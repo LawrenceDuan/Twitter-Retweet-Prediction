@@ -14,6 +14,9 @@ def get_parser():
     parser.add_argument("-u",
                         "--user",
                         dest="user")
+    parser.add_argument("-t",
+                        "--tweet",
+                        dest="tweet")
     return parser
 
 
@@ -48,7 +51,9 @@ def wordsin(tweet):
     return nonPicTexts
 
 
-def tweet
+def tweetScoring(tweet, dictionary):
+    
+    return score
 
 
 if __name__ == "__main__":
@@ -67,7 +72,8 @@ if __name__ == "__main__":
         # Create word dictionary for the user
         descending_sorted_dictionary = createWordDictionary(user, user_tweets)
 
-        # Calculating
+        # Calculating a new tweet's score
+        score = tweetScoring(args.tweet, descending_sorted_dictionary)
 
     # Disconnect to mongodb
     dbHandler.closeDB(connection)
