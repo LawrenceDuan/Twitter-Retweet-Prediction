@@ -1,3 +1,6 @@
+# How to run: python -u (tweet account name) -t (the tweet to be tested)
+
+
 import argparse
 import dbHandler
 import numpy
