@@ -37,23 +37,23 @@ def scoring(db):
             # For this user, get his median value of theilson regression slope and error value
             time_retweets_tuples = []
             for tweet in user_tweets:
-                tweet['timeFloat'] = seconds_since_20060321(datetime.datetime.strptime(tweet['date'], '%Y-%m-%d %H:%M'))
-                time_retweets_tuples.append((tweet['timeFloat'], tweet['retweets']))
+                tweet['refTime'] = seconds_since_20060321(datetime.datetime.strptime(tweet['date'], '%Y-%m-%d %H:%M'))
+                time_retweets_tuples.append((tweet['refTime'], tweet['retweets']))
             median_slope, median_error = theilsen(time_retweets_tuples)
 
             #
             tweet_count = 0
             for tweet in user_tweets:
                 if tweet_count > 0:
-                    tweet['timeSinceLastTweet'] = tweet['timeFloat'] - user_tweets[tweet_count - 1]['timeFloat']
+                    tweet['frequency'] = tweet['refTime'] - user_tweets[tweet_count - 1]['refTime']
                 else:
-                    tweet['timeSinceLastTweet'] = 0
+                    tweet['frequency'] = 0
 
                 # Predict normal number of retweets by this time based on theilson regression
-                tweet['normal'] = median_slope * tweet['timeFloat'] + median_error
+                tweet['normalNumberofRetweets'] = median_slope * tweet['refTime'] + median_error
 
                 # Calculate score for this specific tweet based on predicted normal no. of retweets and real no. of retweets
-                tweet['score'] = ((tweet['retweets'] - tweet['normal']) / tweet['normal']) * 100
+                tweet['score'] = ((tweet['retweets'] - tweet['normalNumberofRetweets']) / tweet['normalNumberofRetweets']) * 100
                 db.retweetPrediction.save(tweet)
 
                 tweet_count = tweet_count + 1
@@ -91,8 +91,7 @@ def random_error(i, timeRetweetsPair, median_value):
 
 
 def seconds_since_20060321(dt):
-  import datetime
-  return (dt - datetime.datetime(2006, 3, 21)).total_seconds()
+    return (dt - datetime.datetime(2006, 3, 21)).total_seconds()
 
 
 if __name__ == '__main__':
