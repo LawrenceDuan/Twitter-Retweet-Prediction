@@ -24,15 +24,23 @@ def get_parser():
 
 
 def createWordDictionary(user, user_tweets):
+    '''
+    Creating dictionary for the user.
+    :param user: the user to be processed
+    :param user_tweets: the tweets of the user
+    :return: dictionary
+    '''
     scoreCollection = {}
     dictionary = {}
 
+    # Collecting available score for each word
     for tweet in user_tweets:
         if type(tweet['text']) is str:
             for word in wordsin(tweet['text']):
                 if word in scoreCollection: scoreCollection[word].append(tweet['score'])
                 else: scoreCollection[word] = [tweet['score']]
 
+    # Calculating average score for each word
     for word in scoreCollection:
         dictionary[word] = numpy.mean(scoreCollection[word])
 
@@ -44,6 +52,11 @@ def createWordDictionary(user, user_tweets):
 
 
 def wordsin(tweet):
+    '''
+    Filter out valuable words exist in a tweet.
+    :param tweet: the tweet to be processed
+    :return: valuable words
+    '''
     nonPicTexts = []
     texts = tweet.split(' ')
 
@@ -56,6 +69,12 @@ def wordsin(tweet):
 
 
 def tweetScoring(tweet, dictionary):
+    '''
+    Calculating score of a tweet of a user based on provided user's dictionary.
+    :param tweet: the tweet to be scored
+    :param dictionary: the dictionary of the user
+    :return: score
+    '''
     scoreList = []
 
     for word in wordsin(tweet):
