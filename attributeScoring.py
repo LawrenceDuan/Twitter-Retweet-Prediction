@@ -1,4 +1,4 @@
-# How to run: python attributeAnalysis.py
+# How to run: python attributeS co.py
 
 
 import numpy
