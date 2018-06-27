@@ -6,6 +6,11 @@ import datetime
 
 
 def preprocessing(db):
+    '''
+    Processing preprocessing on data stored in mongodb
+    :param db: the database to be processed
+    :return: void
+    '''
     # Remove tweets which retweets and favorites are not integer
     db.retweetPrediction.remove({"retweets": {"$type": 2}})
     db.retweetPrediction.remove({"favorites": {"$type": 2}})
@@ -24,7 +29,11 @@ def preprocessing(db):
 
 
 def scoring(db):
-
+    '''
+    Perform scoring on each tweet of each user in database
+    :param db: the database to be processed
+    :return: void
+    '''
     twitter_users = list(db.retweetPrediction.find().distinct("username"))
 
     for user in twitter_users:
@@ -62,6 +71,11 @@ def scoring(db):
 
 
 def theilsen(timeRetweetsPair):
+    '''
+    Implementation of theilsen algorithm
+    :param timeRetweetsPair: pair data in the form of (refTime, retweets)
+    :return: median slope value and median error value
+    '''
     median_slope = median([slope(i, j, timeRetweetsPair) for i in range(len(timeRetweetsPair)) for j in range(i)])
     median_error = median([random_error(i, timeRetweetsPair, median_slope) for i in range(len(timeRetweetsPair))])
 
@@ -69,6 +83,13 @@ def theilsen(timeRetweetsPair):
 
 
 def slope(i, j, timeRetweetsPair):
+    '''
+    Helper function of theilsen. Calculate slope value for a pair of value.
+    :param i: iterate helper
+    :param j: iterate helper
+    :param timeRetweetsPair: pair data in the form of (refTime, retweets)
+    :return: slope value
+    '''
     xi, yi = timeRetweetsPair[i]
     xj, yj = timeRetweetsPair[j]
     if xi - xj:
@@ -78,6 +99,11 @@ def slope(i, j, timeRetweetsPair):
 
 
 def median(L):
+    '''
+    Helper function of theilsen. Get median value of a list of values.
+    :param L:
+    :return:
+    '''
     L.sort()
     if len(L) & 1:
         return L[len(L)//2]
@@ -86,11 +112,23 @@ def median(L):
 
 
 def random_error(i, timeRetweetsPair, median_value):
+    '''
+    Helper function of theilsen. Calculate random error value.
+    :param i: iterate value
+    :param timeRetweetsPair: pair data in the form of (refTime, retweets)
+    :param median_value: the value of median slope
+    :return: random error value
+    '''
     x, y = timeRetweetsPair[i]
     return y - median_value * x
 
 
 def seconds_since_20060321(dt):
+    '''
+    Helper function of scoring. Help calculate refTime value. The twitter is found on 21/03/2006. No twitter will older than that date.
+    :param dt: date of a tweet
+    :return: refTime value.
+    '''
     return (dt - datetime.datetime(2006, 3, 21)).total_seconds()
 
 
