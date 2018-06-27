@@ -78,6 +78,7 @@ def trainingPrep(user_tweets, attr):
 
 
 if __name__ == "__main__":
+    # Connect to mongodb
     db, connection = dbHandler.connectDB()
     user_tweets = list(db.myCollection.find())
 
@@ -85,4 +86,5 @@ if __name__ == "__main__":
 
     print(test)
 
+    # Disconnect to mongodb
     dbHandler.closeDB(connection)
