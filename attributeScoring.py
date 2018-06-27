@@ -1,4 +1,4 @@
-# How to run: python attributeS co.py
+# How to run: python attributeScoring.py
 
 
 import numpy
