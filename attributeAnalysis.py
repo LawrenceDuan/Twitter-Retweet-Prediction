@@ -1,3 +1,6 @@
+# How to run: python attributeAnalysis.py
+
+
 import numpy
 import sklearn.svm
 import dbHandler
@@ -5,6 +8,12 @@ import datetime
 
 
 def attrValue(tweet, attr):
+    '''
+    Get the value of the attribute of the tweet
+    :param tweet: the tweet to be processed
+    :param attr: the attribute to be considered
+    :return: the value of the attribute
+    '''
     if attr == 'mentions':
         return len(tweet['mentions'].split(' '))
     elif attr == 'hashtags':
@@ -23,12 +32,20 @@ def attrValue(tweet, attr):
 
 
 def SVR(user_tweets, attr):
+    '''
+    Creating SVR models that required.
+    :param user_tweets: the tweets to be processed
+    :param attr: the attribute to be considered
+    :return: SVR model
+    '''
     SVR = {}
     x_train, y_train = trainingPrep(user_tweets, attr)
 
+    # Creating SVR classifier
     clf = sklearn.svm.SVR(C=1e3, gamma=5e-10, kernel='rbf')
     y_pred = clf.fit(x_train, y_train).predict(x_train)
 
+    # Creating SVR model
     SVR['clf'] = (x_train, y_pred)
     SVR['std'] = numpy.std(y_pred)
 
@@ -36,7 +53,12 @@ def SVR(user_tweets, attr):
 
 
 def trainingPrep(user_tweets, attr):
-
+    '''
+    Helper function for preparing training data.
+    :param user_tweets: tweets to be processed
+    :param attr: the attribute to be processed
+    :return: prepared training data
+    '''
     attrValue_score_tuples = []
 
     for tweet in user_tweets:
@@ -44,6 +66,7 @@ def trainingPrep(user_tweets, attr):
 
     attrValue_score_tuples = sorted(attrValue_score_tuples, reverse=False, key=lambda elem: elem[0])
 
+    # Creating training data
     x_train = []
     y_train = []
 
