@@ -23,12 +23,16 @@ def attrValue(tweet, attr):
 
 
 def SVR(user_tweets, attr):
+    SVR = {}
     x_train, y_train = trainingPrep(user_tweets, attr)
 
     clf = sklearn.svm.SVR(C=1e3, gamma=5e-10, kernel='rbf')
     y_pred = clf.fit(x_train, y_train).predict(x_train)
 
+    SVR['clf'] = (x_train, y_pred)
+    SVR['std'] = numpy.std(y_pred)
 
+    return SVR
 
 
 def trainingPrep(user_tweets, attr):
@@ -54,8 +58,8 @@ if __name__ == "__main__":
     db, connection = dbHandler.connectDB()
     user_tweets = list(db.myCollection.find())
 
-    test = trainingPrep(user_tweets, 'retweets')
+    test = SVR(user_tweets, 'retweets')
 
-    print(test[0][1])
+    print(test)
 
     dbHandler.closeDB(connection)
