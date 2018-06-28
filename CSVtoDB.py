@@ -1,5 +1,6 @@
 # How to run: python CSVtoDB.py (name(s) of csv file(s)) barackobama britneyspears critiano jtimberlake justinbieber katyperry ladygaga rihanna taylorswift13 theellenshow youtube
 
+
 import subprocess
 import sys
 
