@@ -19,7 +19,7 @@ def attrValue(tweet, attr):
     elif attr == 'hashtags':
         return len(tweet['hashtags'].split(' '))
     elif attr == 'tweetlength':
-        return len(tweet['text'].split(' '))
+        return len(str(tweet['text']).split(' '))
     elif attr == 'timeoftweet':
         time = datetime.datetime.strptime(tweet['date'], "%Y-%m-%d %H:%M")
         return time.hour * 3600 + time.minute * 60 + time.second
