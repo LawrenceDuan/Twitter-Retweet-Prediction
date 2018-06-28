@@ -78,8 +78,47 @@ def predictor(tweet, weighted_tweet_pre_clf):
 
     return pred_score
 
-# def cross_validation():
+def cross_validation(noofcv, user_tweets):
+    K = int(noofcv)
+    base = numpy.random.permutation(user_tweets)
+    folds = []
+    for i in range(K):
+        folds.append([])
+    foldSize = math.ceil(len(user_tweets) / K);
+    index_to_delete = list(range(foldSize))
+    for i in range(K - 1):
+        folds[i] = base[0:foldSize]
+        base = numpy.delete(base, index_to_delete)
+    folds[K - 1] = base
 
+    # Create training and testing set during each iteration
+    # Then using training set to train clfs, using testing and trained clfs to get prediction
+    # Finally compare prediction with the actual score
+
+    baseline_ses = []
+    pred_ses = []
+
+    for i in range(K):
+        training = user_tweets
+        training = list(filter(lambda a: a not in folds[i], training))
+        testing = folds[i]
+
+        tweet_pre_clf = builder(args.user, training, args.attributes)
+        weighted_tweet_pre_clf = weighter(tweet_pre_clf)
+
+        for tweet in testing:
+            actual_score = tweet['score']
+            pred_score = predictor(tweet, weighted_tweet_pre_clf)
+
+            baseline_ses.append(actual_score ** 2)
+            pred_ses.append((actual_score - pred_score) ** 2)
+
+    baseline_mse = numpy.mean(baseline_ses)
+    pred_mse = numpy.mean(pred_ses)
+
+    improvement = [abs(baseline_mse - pred_mse) / baseline_mse * 100]
+
+    return improvement
 
 
 if __name__ == '__main__':
@@ -90,64 +129,19 @@ if __name__ == '__main__':
     # Connect to mongodb
     db, connection = dbHandler.connectDB()
 
-    twitter_users = list(db.retweetPrediction.find().distinct("username"))
-    print(twitter_users)
+    user_tweets = list(db.retweetPrediction.find({"username": args.user}).sort([("date", 1)]))
+    # # Build prediction classifiers for the user
+    # tweet_pre_clf = builder(args.user, user_tweets, args.attributes)
+    #
+    # # Calculate the weight of each classifier
+    # weighted_tweet_pre_clf = weighter(tweet_pre_clf)
 
-    # user_tweets = list(db.retweetPrediction.find({"username": args.user}).sort([("date", 1)]))
-    # # # Build prediction classifiers for the user
-    # # tweet_pre_clf = builder(args.user, user_tweets, args.attributes)
-    # #
-    # # # Calculate the weight of each classifier
-    # # weighted_tweet_pre_clf = weighter(tweet_pre_clf)
-    #
-    # # Evaluation
-    # # Process k-fold cross validation
-    # # Split dataset into K folds
-    # K = int(args.noofcv)
-    # base = numpy.random.permutation(user_tweets)
-    # folds = []
-    # for i in range(K):
-    #     folds.append([])
-    # foldSize = math.ceil(len(user_tweets) / K);
-    # index_to_delete = list(range(foldSize))
-    # for i in range(K - 1):
-    #     folds[i] = base[0:foldSize]
-    #     base = numpy.delete(base, index_to_delete)
-    # folds[K-1] = base
-    #
-    # # Create training and testing set during each iteration
-    # # Then using training set to train clfs, using testing and trained clfs to get prediction
-    # # Finally compare prediction with the actual score
-    #
-    # baseline_ses = []
-    # pred_ses = []
-    #
-    # for i in range(K):
-    #     training = user_tweets
-    #     training = list(filter(lambda a: a not in folds[i], training))
-    #     testing = folds[i]
-    #
-    #     tweet_pre_clf = builder(args.user, user_tweets, args.attributes)
-    #     weighted_tweet_pre_clf = weighter(tweet_pre_clf)
-    #
-    #     for tweet in testing:
-    #         actual_score = tweet['score']
-    #         pred_score = predictor(tweet, weighted_tweet_pre_clf)
-    #
-    #         baseline_ses.append(actual_score ** 2)
-    #         pred_ses.append((actual_score - pred_score) ** 2)
-    #
-    # baseline_mse = numpy.mean(baseline_ses)
-    # pred_mse = numpy.mean(pred_ses)
-    #
-    # improvement = [abs(baseline_mse - pred_mse) / baseline_mse * 100]
-    #
-    # print(improvement)
+    # Evaluation
+    # Process k-fold cross validation
+    # Split dataset into K folds
+    improvement = cross_validation(args.noofcv, user_tweets)
 
-    # print(folds[9].size)
-
-
-    # print(weighted_tweet_pre_clf['favorites']['weight'])
+    print(improvement)
 
     # Disconnect to mongodb
     dbHandler.closeDB(connection)
