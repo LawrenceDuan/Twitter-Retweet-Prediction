@@ -19,9 +19,6 @@ def get_parser():
     '''
     # Get parser for command line arguments.
     parser = argparse.ArgumentParser(description="Text Scoring")
-    parser.add_argument("-u",
-                        "--user",
-                        dest="user")
     parser.add_argument("-a",
                         "--attrs",
                         nargs='+',
@@ -72,14 +69,14 @@ def weighter(tweet_pre_clf):
 def predictor(tweet, weighted_tweet_pre_clf):
     pred_score = 0
 
-    text_score = textScoring.tweetScoring(tweet['text'], weighted_tweet_pre_clf['text'])
+    text_score = textScoring.tweetScoring(str(tweet['text']), weighted_tweet_pre_clf['text'])
     attrs_score = attributeScoring.tweetScoring(tweet, weighted_tweet_pre_clf)
 
     pred_score = text_score + attrs_score
 
     return pred_score
 
-def cross_validation(noofcv, user_tweets):
+def cross_validation(noofcv, user, user_tweets):
     K = int(noofcv)
     base = numpy.random.permutation(user_tweets)
     folds = []
@@ -104,7 +101,7 @@ def cross_validation(noofcv, user_tweets):
         training = list(filter(lambda a: a not in folds[i], training))
         testing = folds[i]
 
-        tweet_pre_clf = builder(args.user, training, args.attributes)
+        tweet_pre_clf = builder(user, training, args.attributes)
         weighted_tweet_pre_clf = weighter(tweet_pre_clf)
 
         for tweet in testing:
@@ -130,7 +127,8 @@ if __name__ == '__main__':
     # Connect to mongodb
     db, connection = dbHandler.connectDB()
 
-    users = list(db.retweetPrediction.find().distinct("username"))
+    # users = list(db.retweetPrediction.find().distinct("username"))
+    users = ["taylorswift13"]
     improvements = []
     for user in users:
         print("• Building classifiers and performing cross validation for user: " + user)
@@ -144,11 +142,11 @@ if __name__ == '__main__':
         # Evaluation
         # Process k-fold cross validation
         # Split dataset into K folds
-        improvement = cross_validation(args.noofcv, user_tweets)
+        improvement = cross_validation(args.noofcv, user, user_tweets)
         improvements.append(improvement)
         print("  Processing of " + user + " finished")
 
-    figure.draw_figure(improvements)
+    figure.draw_figure(improvements, len(users), args.noofcv, numpy.mean(improvements))
 
     # Disconnect to mongodb
     dbHandler.closeDB(connection)
