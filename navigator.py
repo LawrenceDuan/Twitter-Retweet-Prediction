@@ -9,6 +9,7 @@ import sys
 import random
 import numpy
 import math
+import figure
 
 
 def get_parser():
@@ -116,7 +117,7 @@ def cross_validation(noofcv, user_tweets):
     baseline_mse = numpy.mean(baseline_ses)
     pred_mse = numpy.mean(pred_ses)
 
-    improvement = [abs(baseline_mse - pred_mse) / baseline_mse * 100]
+    improvement = abs(baseline_mse - pred_mse) / baseline_mse * 100
 
     return improvement
 
@@ -129,19 +130,25 @@ if __name__ == '__main__':
     # Connect to mongodb
     db, connection = dbHandler.connectDB()
 
-    user_tweets = list(db.retweetPrediction.find({"username": args.user}).sort([("date", 1)]))
-    # # Build prediction classifiers for the user
-    # tweet_pre_clf = builder(args.user, user_tweets, args.attributes)
-    #
-    # # Calculate the weight of each classifier
-    # weighted_tweet_pre_clf = weighter(tweet_pre_clf)
+    users = list(db.retweetPrediction.find().distinct("username"))
+    improvements = []
+    for user in users:
+        print("• Building classifiers and performing cross validation for user: " + user)
+        user_tweets = list(db.retweetPrediction.find({"username": user}).sort([("date", 1)]))
+        # # Build prediction classifiers for the user
+        # tweet_pre_clf = builder(args.user, user_tweets, args.attributes)
+        #
+        # # Calculate the weight of each classifier
+        # weighted_tweet_pre_clf = weighter(tweet_pre_clf)
 
-    # Evaluation
-    # Process k-fold cross validation
-    # Split dataset into K folds
-    improvement = cross_validation(args.noofcv, user_tweets)
+        # Evaluation
+        # Process k-fold cross validation
+        # Split dataset into K folds
+        improvement = cross_validation(args.noofcv, user_tweets)
+        improvements.append(improvement)
+        print("  Processing of " + user + " finished")
 
-    print(improvement)
+    figure.draw_figure(improvements)
 
     # Disconnect to mongodb
     dbHandler.closeDB(connection)
