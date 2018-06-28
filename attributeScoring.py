@@ -78,7 +78,12 @@ def trainingPrep(user_tweets, attr):
 
 
 def tweetScoring(tweet, weighted_tweet_pre_clf):
-
+    '''
+    Calculate tweet scoring based on tweet's attributes
+    :param tweet: the tweet to be processed
+    :param weighted_tweet_pre_clf: the clfs
+    :return: the calculated score
+    '''
     score = 0
 
     for k, v in weighted_tweet_pre_clf.items():
