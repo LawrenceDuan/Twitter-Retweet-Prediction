@@ -77,6 +77,27 @@ def trainingPrep(user_tweets, attr):
     return numpy.array(x_train), numpy.array(y_train)
 
 
+def tweetScoring(tweet, weighted_tweet_pre_clf):
+
+    score = 0
+
+    for k, v in weighted_tweet_pre_clf.items():
+        if k != 'text' and k is not 'user':
+            attr_value = weighted_tweet_pre_clf[k]['clf'][0]
+            pre_tweet_score = weighted_tweet_pre_clf[k]['clf'][1]
+
+            xp = []
+            for x in attr_value:
+                xp.append(x[0])
+            fp = list(pre_tweet_score)
+
+            unweighted_score = numpy.interp(attrValue(tweet, k), xp, fp)
+            weighted_score = unweighted_score * weighted_tweet_pre_clf[k]['weight']
+            score = score + weighted_score
+
+    return score
+
+
 if __name__ == "__main__":
     # Connect to mongodb
     db, connection = dbHandler.connectDB()
