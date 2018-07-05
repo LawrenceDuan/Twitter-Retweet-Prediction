@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+from time import gmtime, strftime
 
 def draw_figure(improvements, a, b, c):
     plt.title("Retweet Prediction Performance")
@@ -12,6 +13,9 @@ def draw_figure(improvements, a, b, c):
     plt.figtext(0.64, 0.81, 'Average improvements: ', fontsize=8)
     plt.figtext(0.70, 0.79, c, fontsize=8)
 
-    plt.show()
+    # plt.show()
 
-    # plt.savefig("performance.png")
+    current_time = strftime("%Y%m%d %H%M%S", gmtime())
+
+
+    plt.savefig("performance " + current_time + ".png")
