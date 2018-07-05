@@ -48,6 +48,11 @@ def builder(user, user_tweets, attrs):
 
 
 def weighter(tweet_pre_clf):
+    '''
+    Calculate the weight of each classifier
+    :param tweet_pre_clf: each prediction classifier
+    :return: weighted prediction classifier
+    '''
 
     total_weight = 0
 
@@ -67,6 +72,12 @@ def weighter(tweet_pre_clf):
 
 
 def predictor(tweet, weighted_tweet_pre_clf):
+    '''
+    A predictor that using a score to represent the success of a tweet
+    :param tweet: the tweet to be tested
+    :param weighted_tweet_pre_clf: weighted tweet prediction classifiers
+    :return: weighted tweet prediction classifiers
+    '''
     pred_score = 0
 
     text_score = textScoring.tweetScoring(str(tweet['text']), weighted_tweet_pre_clf['text'])
@@ -76,10 +87,19 @@ def predictor(tweet, weighted_tweet_pre_clf):
 
     return pred_score
 
+
 def cross_validation(noofcv, user, user_tweets):
+    '''
+    K-fold cross validation function
+    :param noofcv: number of fold
+    :param user: the user being processed
+    :param user_tweets: the tweets to be processed
+    :return: improvement value
+    '''
     K = int(noofcv)
     base = numpy.random.permutation(user_tweets)
     folds = []
+    outputs = []
     for i in range(K):
         folds.append([])
     foldSize = math.ceil(len(user_tweets) / K);
@@ -117,6 +137,10 @@ def cross_validation(noofcv, user, user_tweets):
     improvement = abs(baseline_mse - pred_mse) / baseline_mse * 100
 
     return improvement
+
+
+def evaluation():
+
 
 
 if __name__ == '__main__':
