@@ -216,8 +216,8 @@ if __name__ == '__main__':
     # Connect to mongodb
     db, connection = dbHandler.connectDB()
 
-    # users = list(db.retweetPrediction.find().distinct("username"))
-    users = ["taylorswift13"]
+    users = list(db.retweetPrediction.find().distinct("username"))
+    # users = ["taylorswift13"]
     improvements = []
     for user in users:
         print("• Building classifiers and performing cross validation for user: " + user)
