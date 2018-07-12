@@ -3,6 +3,7 @@
 
 import subprocess
 import sys
+import dbChecker
 
 
 def mongoimport(filename):
@@ -17,5 +18,10 @@ def mongoimport(filename):
 
 if __name__ == '__main__':
     names = sys.argv[1:]
+
+    dbChecker.checker()
+
     for name in names:
         mongoimport(name)
+
+    dbChecker.checker()
