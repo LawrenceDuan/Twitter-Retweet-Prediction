@@ -58,7 +58,7 @@ class HtmlHandler:
 
         headers = [
             ('Host', "twitter.com"),
-            ('User-Agent', "Mozilla/5.0 (Windows NT 6.1; Win64; x64)"),
+            ('User-Agent', "Mozilla/6.0 (Windows NT 6.1; Win64; x64)"),
             ('Accept', "application/json, text/javascript, */*; q=0.01"),
             ('Accept-Language', "de,en-US;q=0.7,en;q=0.3"),
             ('X-Requested-With', "XMLHttpRequest"),
@@ -100,7 +100,6 @@ class HtmlHandler:
             jsonTweet = HtmlHandler.getJsonReponse(userName, e_cursor, cookieJar, proxy)
             if len(jsonTweet['items_html'].strip()) == 0:
                 break
-
             # Control the cursor on the html
             e_cursor_previous = e_cursor
             e_cursor = jsonTweet['min_position']
