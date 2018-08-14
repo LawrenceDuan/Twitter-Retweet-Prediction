@@ -31,7 +31,7 @@ def attrValue(tweet, attr):
         return tweet['favorites']
 
 
-def SVR(user_tweets, attr):
+def SVR(user_tweets, attr, db):
     '''
     Creating SVR models that required.
     :param user_tweets: the tweets to be processed
@@ -48,6 +48,12 @@ def SVR(user_tweets, attr):
     # Creating SVR model
     SVR['clf'] = (x_train, y_pred)
     SVR['std'] = numpy.std(y_pred)
+
+    counter = 0
+    for tweet in user_tweets:
+        tweet['normalNumberofRetweetsSVR'] = y_pred[counter]
+        counter = counter + 1
+        db.retweetPrediction.save(tweet)
 
     return SVR
 
@@ -108,9 +114,7 @@ if __name__ == "__main__":
     db, connection = dbHandler.connectDB()
     user_tweets = list(db.myCollection.find())
 
-    test = SVR(user_tweets, 'retweets')
-
-    print(test)
+    SVR = SVR(user_tweets, 'retweets', db)
 
     # Disconnect to mongodb
     dbHandler.closeDB(connection)
