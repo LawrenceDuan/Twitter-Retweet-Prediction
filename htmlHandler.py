@@ -44,7 +44,7 @@ class HtmlHandler:
 
 
     @staticmethod
-    def getJsonReponse(userName, e_cursor, cookieJar, proxy):
+    def getJsonReponse(userName, e_cursor, cookieJar, proxy, id):
         '''
         Pretend to be a human who is reading through twitter.com. Then extract back html page information into json.
         :param userName: name of the twitter account
@@ -81,7 +81,7 @@ class HtmlHandler:
         return jsonTweet
 
     @staticmethod
-    def getTweets(userName, csv, proxy=None):
+    def getTweets(userName, csv, id, proxy=None):
         '''
         Get tweet information from twitter.com
         :param userName: the name of twitter account
@@ -97,7 +97,7 @@ class HtmlHandler:
 
         while e_cursor != e_cursor_previous :
             # Pretend to be a human reading a html page and extract current page back in json
-            jsonTweet = HtmlHandler.getJsonReponse(userName, e_cursor, cookieJar, proxy)
+            jsonTweet = HtmlHandler.getJsonReponse(userName, e_cursor, cookieJar, proxy, id)
             if len(jsonTweet['items_html'].strip()) == 0:
                 break
             # Control the cursor on the html
@@ -116,7 +116,7 @@ class HtmlHandler:
                 tweet = Tweet()
 
                 # Filter correspoding information from html
-                tweet.username = userName
+                tweet.username = id
                 tweet.date = datetime.datetime.fromtimestamp(int(tweetPQ("small.time span.js-short-timestamp").attr("data-time")))
                 tweet.tweetid = tweetPQ.attr("data-tweet-id")
                 tweet.authorid = int(tweetPQ("a.js-user-profile-link").attr("data-user-id"))
