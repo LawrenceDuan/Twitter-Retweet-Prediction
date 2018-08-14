@@ -1,5 +1,5 @@
-# How to run: python CSVtoDB.py (name(s) of csv file(s)) barackobama britneyspears critiano jtimberlake justinbieber katyperry ladygaga rihanna taylorswift13 theellenshow youtube
-
+# How to run: python CSVtoDB.py (name(s) of csv file(s)) 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21
+# mongoimport --db tweets --collection retweetPrediction --type csv --headerline --file 'Cristiano.csv'
 
 import subprocess
 import sys
