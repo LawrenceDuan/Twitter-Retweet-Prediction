@@ -35,25 +35,21 @@ def scoring(db):
     :param db: the database to be processed
     :return: void
     '''
-    # twitter_users = list(db.retweetPrediction.find().distinct("username"))
-    twitter_users = ['BBCBreaking']
+    twitter_users = list(db.retweetPrediction.find().distinct("username"))
 
     for user in twitter_users:
-        print("•Start scoring for " + user)
+        print("•Start scoring for " + str(user))
         user_tweets = numpy.array(list(db.retweetPrediction.find({"username":user}).sort([("date", 1)])))
 
         if "score" in user_tweets[0]:
-            print(user + "'s tweets has been scored before.")
+            print(str(user) + "'s tweets has been scored before.")
         else:
 
             # For this user, get his median value of theilson regression slope and error value
             median_slope, median_error = scoring_step_1(user_tweets)
-            gc.collect()
-            #
             scoring_step_2(user_tweets, median_slope, median_error)
-            gc.collect()
 
-            print("Saved scores for " + user)
+            print("Saved scores for " + str(user))
 
 
 def scoring_step_1(user_tweets):
@@ -69,6 +65,9 @@ def scoring_step_1(user_tweets):
 def scoring_step_2(user_tweets, median_slope, median_error):
     tweet_count = 0
     for tweet in user_tweets:
+        tweet['TSslope'] = median_slope
+        tweet['TSerror'] = median_error
+
         if tweet_count > 0:
             tweet['frequency'] = tweet['refTime'] - user_tweets[tweet_count - 1]['refTime']
         else:
@@ -76,13 +75,22 @@ def scoring_step_2(user_tweets, median_slope, median_error):
 
         # Predict normal number of retweets by this time based on theilson regression
         tweet['normalNumberofRetweets'] = round(median_slope * tweet['refTime'] + median_error, 2)
+        # print(tweet['normalNumberofRetweets'])
 
         # Calculate score for this specific tweet based on predicted normal no. of retweets and real no. of retweets
-        tweet['score'] = round(((tweet['retweets'] - tweet['normalNumberofRetweets']) / tweet['normalNumberofRetweets']) * 100, 2)
+        if tweet['normalNumberofRetweets'] == 0.0:
+            tweet['score'] = tweet['retweets']
+        else:
+            tweet['score'] = round(((tweet['retweets'] - tweet['normalNumberofRetweets']) / tweet['normalNumberofRetweets']) * 100, 2)
+
+        if tweet['score'] > 0:
+            tweet['success'] = 0
+        else:
+            tweet['success'] = 1
+
         db.retweetPrediction.save(tweet)
 
         tweet_count = tweet_count + 1
-        gc.collect()
 
 def theilsen(timeRetweetsPair):
     '''
@@ -90,8 +98,8 @@ def theilsen(timeRetweetsPair):
     :param timeRetweetsPair: pair data in the form of (refTime, retweets)
     :return: median slope value and median error value
     '''
-    median_slope = round(median([slope(i, j, timeRetweetsPair) for i in range(len(timeRetweetsPair)) for j in range(i)]), 2)
-    median_error = round(median([random_error(i, timeRetweetsPair, median_slope) for i in range(len(timeRetweetsPair))]), 2)
+    median_slope = median([slope(i, j, timeRetweetsPair) for i in range(len(timeRetweetsPair)) for j in range(i)])
+    median_error = median([random_error(i, timeRetweetsPair, median_slope) for i in range(len(timeRetweetsPair))])
 
     return median_slope, median_error
 
@@ -149,6 +157,5 @@ def seconds_since_20060321(dt):
 if __name__ == '__main__':
     db, connection = dbHandler.connectDB()
     preprocessing(db)
-    gc.collect()
     scoring(db)
     dbHandler.closeDB(connection)
