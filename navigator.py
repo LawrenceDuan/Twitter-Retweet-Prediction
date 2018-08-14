@@ -1,4 +1,4 @@
-# python navigator.py -u taylorswift13 -a text mentions hashtags tweetlength timeoftweet frequency retweets favorites
+# python navigator.py -a text mentions hashtags tweetlength timeoftweet frequency retweets favorites -k 10
 
 
 import argparse
@@ -10,6 +10,7 @@ import random
 import numpy
 import math
 import figure
+import time
 
 
 def get_parser():
@@ -28,7 +29,7 @@ def get_parser():
     return parser
 
 
-def builder(user, user_tweets, attrs):
+def builder(user, user_tweets, attrs, db):
     '''
     Build clfs for the user.
     :param user: the name of the user
@@ -42,7 +43,7 @@ def builder(user, user_tweets, attrs):
     # Build clf for both text content and attribute content
     for attr in attrs:
         if attr == 'text': tweet_pre_clf[attr] = textScoring.createWordDictionary(user, user_tweets)
-        else: tweet_pre_clf[attr] = attributeScoring.SVR(user_tweets, attr)
+        else: tweet_pre_clf[attr] = attributeScoring.SVR(user_tweets, attr, db)
 
     return tweet_pre_clf
 
@@ -80,15 +81,13 @@ def predictor(tweet, weighted_tweet_pre_clf):
     '''
     pred_score = 0
 
-    text_score = textScoring.tweetScoring(str(tweet['text']), weighted_tweet_pre_clf['text'])
-    attrs_score = attributeScoring.tweetScoring(tweet, weighted_tweet_pre_clf)
+    pred_score_on_text = textScoring.tweetScoring(str(tweet['text']), weighted_tweet_pre_clf['text'])
+    pred_score_on_attrs = attributeScoring.tweetScoring(tweet, weighted_tweet_pre_clf)
 
-    pred_score = text_score + attrs_score
-
-    return pred_score
+    return pred_score_on_text, pred_score_on_attrs
 
 
-def cross_validation(noofcv, user, user_tweets):
+def cross_validation(noofcv, user, user_tweets, db):
     '''
     K-fold cross validation function
     :param noofcv: number of fold
@@ -100,7 +99,8 @@ def cross_validation(noofcv, user, user_tweets):
     base = numpy.random.permutation(user_tweets)
     folds = []
     targets = []
-    predicts = []
+    predicts_on_text = []
+    predicts_on_attrs = []
 
     for i in range(K):
         folds.append([])
@@ -116,32 +116,37 @@ def cross_validation(noofcv, user, user_tweets):
     # Finally compare prediction with the actual score
 
     baseline_ses = []
-    pred_ses = []
+    pred_on_text_ses = []
+    pred_on_attrs_ses = []
 
     for i in range(K):
         training = user_tweets
         training = list(filter(lambda a: a not in folds[i], training))
         testing = folds[i]
 
-        tweet_pre_clf = builder(user, training, args.attributes)
+        tweet_pre_clf = builder(user, training, args.attributes, db)
         weighted_tweet_pre_clf = weighter(tweet_pre_clf)
 
         for tweet in testing:
             actual_score = tweet['score']
-            pred_score = predictor(tweet, weighted_tweet_pre_clf)
+            pred_score_on_text, pred_score_on_attrs = predictor(tweet, weighted_tweet_pre_clf)
 
             targets.append(actual_score)
-            predicts.append(pred_score)
+            predicts_on_text.append(pred_score_on_text)
+            predicts_on_attrs.append(pred_score_on_attrs)
 
             baseline_ses.append(actual_score ** 2)
-            pred_ses.append((actual_score - pred_score) ** 2)
+            pred_on_text_ses.append((actual_score - pred_score_on_text) ** 2)
+            pred_on_attrs_ses.append((actual_score - pred_score_on_attrs) ** 2)
 
     baseline_mse = numpy.mean(baseline_ses)
-    pred_mse = numpy.mean(pred_ses)
+    pred_on_text_mse = numpy.mean(pred_on_text_ses)
+    pred_on_attrs_mse = numpy.mean(pred_on_attrs_ses)
 
-    improvement = abs(baseline_mse - pred_mse) / baseline_mse * 100
+    improvement_on_text = (baseline_mse - pred_on_text_mse) / baseline_mse * 100
+    improvement_on_attrs = (baseline_mse - pred_on_attrs_mse) / baseline_mse * 100
 
-    return improvement, targets, predicts
+    return improvement_on_text, improvement_on_attrs
 
 
 # def evaluation(targets, predicts):
@@ -209,6 +214,8 @@ def cross_validation(noofcv, user, user_tweets):
 
 
 if __name__ == '__main__':
+    start = time.time()
+
     # Get commandline arguments
     parser = get_parser()
     args = parser.parse_args()
@@ -216,28 +223,41 @@ if __name__ == '__main__':
     # Connect to mongodb
     db, connection = dbHandler.connectDB()
 
-    users = list(db.retweetPrediction.find().distinct("username"))
-    # users = ["taylorswift13"]
-    improvements = []
+    # users = list(db.retweetPrediction.find().distinct("username"))
+    users = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+    # users = [19]
+    improvements_on_text = []
+    improvements_on_attrs = []
+
     for user in users:
-        print("• Building classifiers and performing cross validation for user: " + user)
+        print("• Building classifiers and performing cross validation for user: " + str(user))
         user_tweets = list(db.retweetPrediction.find({"username": user}).sort([("date", 1)]))
         # # Build prediction classifiers for the user
-        # tweet_pre_clf = builder(args.user, user_tweets, args.attributes)
+        tweet_pre_clf = builder(user, user_tweets, args.attributes, db)
         #
         # # Calculate the weight of each classifier
-        # weighted_tweet_pre_clf = weighter(tweet_pre_clf)
+        weighted_tweet_pre_clf = weighter(tweet_pre_clf)
 
         # Evaluation
         # Process k-fold cross validation
         # Split dataset into K folds
-        improvement, targets, predicts = cross_validation(args.noofcv, user, user_tweets)
-        improvements.append(improvement)
-        print("  Processing of " + user + " finished")
+        improvement_on_text, improvement_on_attrs = cross_validation(args.noofcv, user, user_tweets, db)
+        improvements_on_text.append(improvement_on_text)
+        improvements_on_attrs.append(improvement_on_attrs)
+        print("  Processing of " + str(user) + " finished ----- ", end="")
+        end = time.time()
+        print(str(end - start) + " seconds so far.")
 
        # evaluation(targets, predicts)
 
-    figure.draw_figure(improvements, len(users), args.noofcv, numpy.mean(improvements))
+    figure.draw_figure(improvements_on_text, len(users), args.noofcv, numpy.mean(improvements_on_text))
+    sys.sleep(1)
+    figure.draw_figure(improvements_on_attrs, len(users), args.noofcv, numpy.mean(improvements_on_attrs))
+
+    print(improvements_on_text, improvements_on_attrs)
 
     # Disconnect to mongodb
     dbHandler.closeDB(connection)
+
+    end = time.time()
+    print(str(end - start) + " in total.")
