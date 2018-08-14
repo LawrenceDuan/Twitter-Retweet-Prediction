@@ -4,9 +4,10 @@
 import sys
 import codecs
 import htmlHandler
+import random
 
 
-def crawler(name):
+def crawler(name, id):
     '''
     Crawling tweet information by pretending a human who is surfing through a website.
     :param name: name of the twitter account to be crawled
@@ -21,7 +22,7 @@ def crawler(name):
     csv.write('username;date;tweetid;authorid;text;retweets;favorites;mentions;hashtags;permalink;geo')
     print("•Start crawling " + userName + "'s tweets!")
 
-    htmlHandler.HtmlHandler().getTweets(userName, csv)
+    htmlHandler.HtmlHandler().getTweets(userName, csv, id)
 
     csv.close()
     print(' File: ', end='')
@@ -35,6 +36,21 @@ if __name__ == '__main__':
         print('Names required.')
     else:
         name_list = sys.argv[1:]
+        id_list = [-1]
+
+        for i in range(len(name_list)):
+            temp = -1
+            while temp in id_list:
+                temp = random.randint(1, len(name_list))
+                if temp not in id_list:
+                    id_list.append(temp)
+                    temp = -2
+                else:
+                    temp = -1
+        id_list.remove(-1)
+
+        id_counter = 0
 
         for name in name_list:
-            crawler(name)
+            crawler(name, id_list[id_counter])
+            id_counter = id_counter + 1
